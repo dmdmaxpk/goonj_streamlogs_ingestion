@@ -20,7 +20,9 @@ const liveLogSchema = new Schema({
         total: { type: Number, default: 0 }
     },
     view_counts: Number,    // Total number of clicks on channel
-    view_date: Date,        // One unique day for each channel
+    view_date: Date,
+    hour: Number,           // 24 hours of data for each channel
+    view_timestamp: Date,
     insert_time: { type: Date, default: Date.now }
 
 
