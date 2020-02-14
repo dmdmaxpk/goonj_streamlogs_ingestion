@@ -50,7 +50,8 @@ exports.post = async (req, res) => {
 	let conditions = { view_date , platform, channel };
 	console.log("conditions",conditions)
 	axios.get(`${config.goonj_video_service}/channel/getchannelcats`).then(async (data) => {
-		catsOfChannels = data;
+		catsOfChannels = data.data;
+		console.log('data',data)
 		console.log('catsOfData',catsOfChannels);
 		console.log('catsOfData',catsOfChannels[postBody.channel]);
 		// Setting update values
