@@ -14,7 +14,7 @@ setInterval(() => { 	// Rate limiting of API calls
 		let vod_parsed_log = parsedQueue.shift();
 
 		// Getting video details by file_name
-		axios.get(`http://api.goonj.pk/v2/video?file_name=${vod_parsed_log.file_name}.m4v`)
+		axios.get(`https://api.goonj.pk/v2/video?file_name=${vod_parsed_log.file_name}.m4v`)
 		.then( resp => {
 			// console.log(resp.data[0]);
 
