@@ -4,17 +4,20 @@ let config = {
     development: {
         port: '3000',
         mongoConnectionUrl: 'mongodb://localhost:27017/streamlogs',
-        apiGateway: 'http://10.0.1.90'
+        apiGateway: 'http://10.0.1.90',
+        goonj_video_service: "http://10.3.7.101:3000"
     },
     staging: {
         port: '3000',
         mongoConnectionUrl: 'mongodb://localhost:27017/streamlogs',
-        apiGateway: 'http://localhost:3000'
+        apiGateway: 'http://localhost:3000',
+        goonj_video_service: "http://10.3.7.101:3000"
     },
     production: {
         port: '3000',
         mongoConnectionUrl: 'mongodb://localhost:27017/streamlogs',
-        apiGateway: 'http://10.0.1.90'
+        apiGateway: 'http://10.0.1.90',
+        goonj_video_service: "http://10.3.7.101:3000"
     }
 };
 

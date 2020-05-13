@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const LiveLog = mongoose.model('LiveLog');
+const axios = require('axios');
+const config = require('../config');
 mongoose.set('useFindAndModify', false);	// To turn off findAndModify of Mongoose and use mongo native findOneAndUpdate
 
 // Move these channels and their categories to config file (This can also be fetched from channels API every day and then saved to DB for updated values)
@@ -39,32 +41,43 @@ let catsOfChannels = {
 
 exports.post = async (req, res) => {
 
-    let {view_date, platform, channel} = req.body;
+	let {view_date, platform, channel,hour} = req.body;
+	view_date = new Date(view_date).setHours(hour);
 	let postBody = req.body;
+	console.log("req.body",req.body)
 
 	// Setting Conditions
-	let conditions = { view_date, platform, channel };
+	let conditions = { view_date , platform, channel };
+	console.log("conditions",conditions)
+	axios.get(`${config.goonj_video_service}/channel/getchannelcats`).then(async (data) => {
+		catsOfChannels = data.data;
+		console.log('data',data)
+		console.log('catsOfData',catsOfChannels);
+		console.log('catsOfData',catsOfChannels[postBody.channel]);
+		// Setting update values
+		let update = { $inc: { 
+			"chunks.144": postBody.chunks[144],
+			"chunks.240": postBody.chunks[240],
+			"chunks.360": postBody.chunks[360],
+			"chunks.480": postBody.chunks[480],
+			"chunks.720": postBody.chunks[720],
+			"chunks.total": postBody.chunks.total,
+			"view_counts": postBody.view_counts},
+			"category": catsOfChannels[postBody.channel]
+		};
 
-	// Setting update values
-	let update = { $inc: { 
-		"chunks.144": postBody.chunks[144],
-		"chunks.240": postBody.chunks[240],
-		"chunks.360": postBody.chunks[360],
-		"chunks.480": postBody.chunks[480],
-		"chunks.720": postBody.chunks[720],
-		"chunks.total": postBody.chunks.total,
-		"view_counts": postBody.view_counts},
-		"category": catsOfChannels[postBody.channel]
-	};
+		// Setting Query Options
+		let options = { new: true, upsert: true, setDefaultsOnInsert: true }
 
-	// Setting Query Options
-	let options = { new: true, upsert: true, setDefaultsOnInsert: true }
+		// Final Query
+		let result = await LiveLog.findOneAndUpdate(conditions, update, options)
 
-	// Final Query
-	let result = await LiveLog.findOneAndUpdate(conditions, update, options)
-
-	console.log(`Log Added: ${result._id}`);
-    res.send("Posted!");
+		console.log(`Log Added: ${result._id}`);
+		res.send("Posted!");
+	}).catch(err => {	
+		console.log(`Error while getting categories:`,err);
+		res.status(501).send(err);
+	});	
 }
 
 // POST not consumed by any Svc (shifted to stream stats svc)
