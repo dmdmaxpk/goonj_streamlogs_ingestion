@@ -14,7 +14,7 @@ exports.post = async (req, res) => {
 	MsdnVodLog.findOneAndUpdate({"insert_time": new Date(helper.setDate(new Date()).toString())}, postBody, options)
 		.then(res => console.log(`Log added for: ${postBody.filename}`));
 
-	res.send("Added to Queue!");
+	res.send("Log file parsed is done!");
 }
 
 // POST not consumed by any Svc (shifted to stream stats svc)
