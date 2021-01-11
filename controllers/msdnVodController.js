@@ -11,7 +11,12 @@ exports.post = async (req, res) => {
 	// Mongoose Query to findOneAndUpdate with upsert true
 	let options = { new: true, upsert: true, setDefaultsOnInsert: true }
 
-	MsdnVodLog.findOneAndUpdate({"insert_time": new Date(helper.setDate(new Date()).toString())}, postBody, options)
+	// Mongoose Query to findOneAndUpdate condition
+	let insert_time = new Date(helper.setDate(new Date()).toString());
+	let condition = {"insert_time": insert_time, "platform": postBody.platform, "source": postBody.source}
+	console.log("condition: ", condition);
+
+	MsdnVodLog.findOneAndUpdate(condition, postBody, options)
 		.then(res => console.log(`Log added for: ${postBody.filename}`));
 
 	res.send("Log file parsed is done!");
