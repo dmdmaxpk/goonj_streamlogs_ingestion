@@ -5,10 +5,8 @@ const config = require('./config');
 
 const app = express();
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({limit: '1024mb'}));
 
-// Connect to our Database:
 mongoose.connect(config.mongoConnectionUrl, { useNewUrlParser: true });
 mongoose.connection.on('error', err => console.error(`Error: ${err.message}`));
 
