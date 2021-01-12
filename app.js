@@ -13,7 +13,7 @@ mongoose.connection.on('error', err => console.error(`Error: ${err.message}`));
 // import models
 require('./models/LiveLog');
 require('./models/VodLog');
-require('./models/MsdnVodLog');
+require('./models/MsdnStreamLog');
 
 // Routes:
 const routes = require('./routes/index');

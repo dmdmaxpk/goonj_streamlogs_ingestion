@@ -8,7 +8,7 @@ router.get('/', (req, res) => res.send("Streamlogs Ingestion Microservice"));
 // Parser Routes
 router.use('/liveparsing',    	require('./liveparsingRoutes'));
 router.use('/vodparsing',    	require('./vodparsingRoutes'));
-router.use('/msdnVod',    	require('./msdnVodRoutes'));
+router.use('/msdnStream',    	require('./msdnStreamRoutes'));
 
 
 module.exports = router;

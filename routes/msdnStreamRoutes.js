@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const msdnVodController = require('../controllers/msdnVodController')
+const msdnVodController = require('../controllers/msdnStreamController')
 
 
 router.route('/')

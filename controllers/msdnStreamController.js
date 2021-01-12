@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const MsdnVodLog = mongoose.model('MsdnVodLog');
+const msdnStreamLog = mongoose.model('MsdnStreamLog');
 mongoose.set('useFindAndModify', false);	// To turn off findAndModify of Mongoose and use mongo native findOneAndUpdate
 const helper = require('../helper/helper');
 
@@ -16,7 +16,7 @@ exports.post = async (req, res) => {
 	let condition = {"insert_time": insert_time, "platform": postBody.platform, "source": postBody.source}
 	console.log("condition: ", condition);
 
-	MsdnVodLog.findOneAndUpdate(condition, postBody, options)
+	msdnStreamLog.findOneAndUpdate(condition, postBody, options)
 		.then(res => console.log(`Log added for: ${postBody.filename}`));
 
 	res.send("Log file parsed is done!");
@@ -34,7 +34,7 @@ exports.get = async (req, res) => {
 
 	console.log(query);
 
-	let result = await MsdnVodLog.find( query );
+	let result = await msdnStreamLog.find( query );
 
 	if (result)
 		res.send(result.data);
