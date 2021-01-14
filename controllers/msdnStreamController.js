@@ -1,22 +1,15 @@
-const mongoose = require('mongoose');
-const msdnStreamLog = mongoose.model('MsdnStreamLog');
+const MsdnStreamRepository = require('../repos/MsdnStreamRepository');
+msdnStreamRepo = new MsdnStreamRepository();
 
-// POST not consumed by any Svc (shifted to stream stats svc)
 exports.get = async (req, res) => {
-
 	const { platform, file_name } = req.query;
 	let query = {};
-	console.log(req.query);
-
 	if (file_name) query.file_name = file_name;
 	if (platform) query.platform = platform;
 
-	console.log(query);
-
-	let result = await msdnStreamLog.find( query );
-
+	let result = await msdnStreamRepo.get( query );
 	if (result)
-		res.send(result.data);
+		res.send({status: 200, result: result});
 	else
 		res.send({status: 404, message: 'Data not found'});
 }
@@ -38,7 +31,6 @@ exports.post = async (req, res) => {
 			}
 		}
 	}
-
 
 	console.log('counter: ', counter)
 	res.send("Log file parsed is done!");
@@ -75,21 +67,20 @@ exports.insertOrUpdateRecord = async (req, objKey, msdn, record) =>{
 	return await this.save(postBody);
 }
 
-exports.show = async (condition) => {
+exports.show = async (query) => {
 
-	return await msdnStreamLog.findOne(condition);
+	return await msdnStreamRepo.getByCondition( query );
 }
 
 exports.update = async (result, postBody) => {
 
 	let bitrateCount = Number(postBody.bitrateCount) + Number(result.bitrateCount);
 	let viewCount = Number(postBody.viewCount) + Number(result.viewCount);
-	return await msdnStreamLog.updateOne({"_id": result._id},{$set:{bitrateCount: bitrateCount, viewCount: viewCount}});
+	return await msdnStreamRepo.updateById( {"_id": result._id}, bitrateCount, viewCount);
 }
 
 exports.save = async (postBody) => {
 
-	let msdnStreamLogObj = new msdnStreamLog(postBody);
-	return await msdnStreamLogObj.save();
+	return await msdnStreamRepo.save( postBody );
 }
 
