@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const shortid = require('shortid');
 const {Schema} = mongoose;
 
-const MsdnStreamSchema = new Schema({
+const MsisdnStreamSchema = new Schema({
     _id: { 'type': String, 'default': shortid.generate },
     platform: String, // Web OR Android
     source: String,   // live channel OR Vod
-    msdn: String, // user msdn
+    msisdn: String, // user msisdn
     computeSource: String, // channelName or fileName
     logDate: String, // Date from log file
     logHour: String, // Hour from log file
@@ -16,4 +16,4 @@ const MsdnStreamSchema = new Schema({
     insertTime: { type: Date, default: Date.now }
 }, { strict: true })
 
-module.exports = mongoose.model('MsdnStreamLog', MsdnStreamSchema);
+module.exports = mongoose.model('MsisdnStreamLog', MsisdnStreamSchema);
