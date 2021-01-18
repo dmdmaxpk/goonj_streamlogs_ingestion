@@ -68,7 +68,7 @@ exports.insertOrUpdateRecord = async (req, objKey, msisdn, record) =>{
 		logDate: record.date, // Date from log file
 		logHour: record.hour, // Hour from log file
 		bitrateCount: record.bitrateCount, // Total bitrate count
-		viewCount: record.viewCount, // Total view count
+		minutes: record.minutes, // Array of watching minutes
 		filename: filename, // Parsed log file name
 	};
 
@@ -89,8 +89,8 @@ exports.show = async (query) => {
 exports.update = async (result, postBody) => {
 
 	let bitrateCount = Number(postBody.bitrateCount) + Number(result.bitrateCount);
-	let viewCount = Number(postBody.viewCount) + Number(result.viewCount);
-	return await msisdnStreamRepo.updateById( {"_id": result._id}, bitrateCount, viewCount);
+	let minutes = Number(postBody.minutes) + Number(result.minutes);
+	return await msisdnStreamRepo.updateById( {"_id": result._id}, bitrateCount, minutes);
 }
 
 exports.save = async (postBody) => {

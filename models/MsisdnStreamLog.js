@@ -11,7 +11,7 @@ const MsisdnStreamSchema = new Schema({
     logDate: String, // Date from log file
     logHour: String, // Hour from log file
     bitrateCount: Number, // Total bitrate count
-    viewCount: Number, // Total view count
+    minutes: Array, // Array of watching minutes
     filename: String, // Parsed log file name
     insertTime: { type: Date, default: Date.now }
 }, { strict: true })
