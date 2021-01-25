@@ -8,7 +8,7 @@ const MsisdnStreamSchema = new Schema({
     source: String,   // live channel OR Vod
     msisdn: String, // user msisdn
     computeSource: String, // channelName or fileName
-    logDate: String, // Date from log file
+    logDate: { type: Date, default: Date.now }, // Date from log file
     logHour: String, // Hour from log file
     bitrateCount: Number, // Total bitrate count
     minutes: Array, // Array of watching minutes

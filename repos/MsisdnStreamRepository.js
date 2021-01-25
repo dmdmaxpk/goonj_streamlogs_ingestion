@@ -6,12 +6,20 @@ class MsisdnStreamRepository {
         return await msisdnStreamLog.find( query );
     }
 
+    async getAll () {
+        return await msisdnStreamLog.find({} );
+    }
+
     async getByCondition (query) {
         return await msisdnStreamLog.findOne( query );
     }
 
     async updateById (query, bitrateCount, viewCount) {
         return await msisdnStreamLog.updateOne(query,{$set:{bitrateCount: bitrateCount, viewCount: viewCount}});
+    }
+
+    async updateDateById (query, logDate) {
+        return await msisdnStreamLog.updateOne(query,{$set:{logDate: logDate}});
     }
 
     async save (record) {

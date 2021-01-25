@@ -16,6 +16,36 @@ exports.get = async (req, res) => {
 		res.send({status: 404, message: 'Data not found'});
 }
 
+exports.getByDateRange = async (req, res) => {
+	const { source, startDate, endDate, msisdn } = req.query;
+	console.log('req.query: ', req.query);
+
+	let query = {};
+	if (startDate) query.logDate = { $gte: new Date(startDate) };
+	if (endDate) query.logDate.$lte = new Date(endDate);
+	if (source) query.source = source;
+	if (msisdn !== '') query.msisdn = msisdn;
+
+	console.log('query: ', query);
+	let result = await msisdnStreamRepo.get( query );
+	if (result)
+		res.send({status: 200, result: result});
+	else
+		res.send({status: 404, message: 'Data not found'});
+}
+
+exports.updateDateStringToDatePart = async (req, res) => {
+
+	let result = await msisdnStreamRepo.getAll( );
+	for (const record of result) {
+		console.log('record: ', record);
+		if (record)
+			await msisdnStreamRepo.updateDateById( {_id: record._id}, record.logDate );
+	}
+
+	res.send({status: 200, message: 'Operation is done'});
+}
+
 exports.post = async (req, res) => {
 	let body = req.body;
 
