@@ -3,7 +3,7 @@ const msisdnStreamLog = mongoose.model('MsisdnStreamLog');
 
 class MsisdnStreamRepository {
     async get (query) {
-        return await msisdnStreamLog.find( query ).limit( 1000 );
+        return await msisdnStreamLog.find( query ).limit( 2000 );
     }
 
     async getAll () {
