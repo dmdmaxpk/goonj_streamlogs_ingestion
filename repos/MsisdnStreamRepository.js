@@ -26,6 +26,26 @@ class MsisdnStreamRepository {
         let msisdnStreamLogObj = new msisdnStreamLog(record);
         return await msisdnStreamLogObj.save();
     }
+
+    async dou (msisdn, startDate, endDate) {
+        return await msisdnStreamLog.aggregate([
+            { $match: {
+                    msisdn: msisdn,
+                    $or: [{platform: 'web'}, {platform: 'android'}],
+                    $and:[{logDate:{$gte:new Date(startDate)}}, {logDate:{$lte:new Date(endDate)}}]
+            }},
+            { $project: {
+                    bitrate: "$bitrateCount",
+                    logMonth: { $month: "$logDate" },
+                }
+            },
+            { $group: {
+                    _id: {logMonth: "$logMonth"},
+                    totalBitRates: { $sum: "$bitrate" }
+                }
+            }
+        ]);
+    }
 }
 
 module.exports = MsisdnStreamRepository;

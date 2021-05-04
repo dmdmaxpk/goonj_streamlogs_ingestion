@@ -13,4 +13,8 @@ router.route('/update-date-string-to-iosdate')
 router.route('/get-by-date-range')
     .get(msisdnVodController.getByDateRange)
 
+
+router.route('/compute-dou-from-list-of-msisdn')
+    .get(msisdnVodController.getDou)
+
 module.exports = router;

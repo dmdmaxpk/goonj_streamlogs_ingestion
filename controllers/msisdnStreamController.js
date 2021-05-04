@@ -1,3 +1,10 @@
+const readline = require('readline');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const fs = require('fs');
+var nodemailer = require('nodemailer');
+const path = require('path');
+const csvParser = require('csv-parser');
+
 const MsisdnStreamRepository = require('../repos/MsisdnStreamRepository');
 const LogFileRepository = require('../repos/LogFileRepository');
 msisdnStreamRepo = new MsisdnStreamRepository();
@@ -138,3 +145,146 @@ exports.updateLogFileRecord = async (postBody) => {
 	return await logFileRepo.save(postBody);
 }
 
+
+
+let currentDate = null;
+currentDate = getCurrentDate();
+
+let randomReport = currentDate+"_RandomReport.csv";
+let randomReportFilePath = `./${randomReport}`;
+
+const loggerMsisdnWiseReportWriter = createCsvWriter({
+	path: randomReportFilePath,
+	header: [
+		{id: 'msisdn', title: 'Msisdn'},
+		{id: 'month', title: 'Month'},
+		{id: 'watchTime', title: 'Watch Time (SEC)'}
+	]
+});
+
+
+function getCurrentDate(){
+	var dateObj = new Date();
+	var month = dateObj.getMonth() + 1; //months from 1-12
+	var day = dateObj.getDate();
+	var year = dateObj.getFullYear();
+	let newdate = day + "-" + month + "-" + year;
+	return newdate;
+}
+
+
+var transporter = nodemailer.createTransport({
+	host: "mail.dmdmax.com.pk",
+	port: 465,
+	secure: true, // true for 465, false for other ports
+	auth: {
+		user: 'reports@goonj.pk', // generated ethereal user
+		pass: 'YiVmeCPtzJn39Mu' // generated ethereal password
+	}
+});
+
+exports.getDou = async (req, res) => {
+	console.log("=> computeLoggerDataMsisdnWise");
+
+	let finalResult = [];
+	try {
+		var jsonPath = path.join(__dirname, '..', 'msisdns.txt');
+		let inputData = await readFileSync(jsonPath);
+		console.log("### Input Data Length: ", inputData.length);
+
+		let startDate = "2021-01-01T00:00:00.000Z";
+		let endDate = "2021-01-31T23:59:59.000Z";
+
+		for(let i = 0; i < inputData.length; i++){
+			if(inputData[i] && inputData[i].length === 11){
+
+				let query = {};
+				console.log("### Request for msisdn: ", inputData[i], i);
+				let records = await msisdnStreamRepo.dou(inputData[i], startDate, endDate);
+				console.log('### records: ', records);
+				if(records.length > 0){
+					for (let record of records) {
+						let singObject = { msisdn: inputData[i] }
+						singObject.month = "0" + record._id.logMonth + "-2021";
+						singObject.watchTime = record.totalBitRates * 5;
+
+						finalResult.push(singObject);
+						console.log('### Done: ')
+					}
+				}
+				else{
+					console.log("### Data not found: ");
+				}
+			}else{
+				console.log("### Invalid number or number length: ");
+			}
+		}
+
+		console.log("### Finally: ", finalResult.length);
+
+		if (finalResult.length > 0){
+
+			console.log("### Sending email");
+			await loggerMsisdnWiseReportWriter.writeRecords(finalResult);
+			let info = await transporter.sendMail({
+				from: 'paywall@dmdmax.com.pk',
+				to:  ["muhammad.azam@dmdmax.com"],
+				subject: `Complaint Data`, // Subject line
+				text: `This report contains the details of msisdns being sent us over email from Zara`,
+				attachments:[
+					{
+						filename: randomReport,
+						path: randomReportFilePath
+					}
+				]
+			});
+		}
+
+		fs.unlink(randomReportFilePath,function(err,data) {
+			if (err) {
+				console.log("###  File not deleted[randomReport]");
+			}
+			console.log("###  File deleted [randomReport]");
+		});
+
+	}catch (e) {
+		console.log("### error - ", e);
+
+	}
+
+
+	let result = await msisdnStreamRepo.dou( query );
+	if (result)
+		res.send({status: 200, result: result});
+	else
+		res.send({status: 404, message: 'Data not found'});
+}
+
+readFileSync = async (jsonPath) => {
+	return new Promise((resolve, reject) => {
+		try{
+			const readInterface = readline.createInterface({
+				input: fs.createReadStream(jsonPath)
+			});
+			let inputData = [];
+			let counter = 0;
+			readInterface.on('line', function(line) {
+				if(line.startsWith("92")){
+					line = line.replace('92', '0');
+				}else if(line.startsWith("3")){
+					line = "0" + line;
+				}
+
+				inputData.push(line);
+				counter += 1;
+				console.log("### read", counter);
+			});
+
+			readInterface.on('close', function(line) {
+				resolve(inputData);
+			});
+		}catch(e){
+			reject(e);
+		}
+	});
+}
