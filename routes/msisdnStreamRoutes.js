@@ -15,6 +15,6 @@ router.route('/get-by-date-range')
 
 
 router.route('/compute-dou-from-list-of-msisdn')
-    .get(msisdnVodController.getDou)
+    .get(msisdnVodController.getWatchTime)
 
 module.exports = router;

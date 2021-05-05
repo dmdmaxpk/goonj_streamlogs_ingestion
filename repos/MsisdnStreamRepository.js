@@ -27,24 +27,38 @@ class MsisdnStreamRepository {
         return await msisdnStreamLogObj.save();
     }
 
-    async dou (msisdn, startDate, endDate) {
-        return await msisdnStreamLog.aggregate([
-            { $match: {
-                    msisdn: msisdn,
-                    $or: [{platform: 'web'}, {platform: 'android'}],
-                    $and:[{logDate:{$gte:new Date(startDate)}}, {logDate:{$lte:new Date(endDate)}}]
-            }},
-            { $project: {
-                    bitrate: "$bitrateCount",
-                    logMonth: { $month: "$logDate" },
+    async getBitRates (msisdn, startDate, endDate) {
+        console.log('getBitRates: ', msisdn, ' , ', startDate, ' , ', endDate);
+        try {
+            let result = await msisdnStreamLog.aggregate([
+                {
+                    $match: {
+                        msisdn: msisdn,
+                        platform: {$in: ['web', 'android']},
+                        $and: [{logDate: {$gte: new Date(startDate)}}, {logDate: {$lte: new Date(endDate)}}]
+                    }
+                },
+                {
+                    $project: {
+                        bitrate: "$bitrateCount",
+                        logMonth: {$month: "$logDate"},
+                    }
+                },
+                {
+                    $group: {
+                        _id: {logMonth: "$logMonth"},
+                        totalBitRates: {$sum: "$bitrate"}
+                    }
                 }
-            },
-            { $group: {
-                    _id: {logMonth: "$logMonth"},
-                    totalBitRates: { $sum: "$bitrate" }
-                }
-            }
-        ]);
+            ]);
+
+            console.log('result: ', result);
+            return result;
+
+        }catch (e) {
+            console.log('getBitRates - error: ', e.message);
+            return [];
+        }
     }
 }
 

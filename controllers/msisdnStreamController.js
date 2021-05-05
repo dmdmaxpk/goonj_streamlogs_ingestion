@@ -183,8 +183,8 @@ var transporter = nodemailer.createTransport({
 	}
 });
 
-exports.getDou = async (req, res) => {
-	console.log("=> computeLoggerDataMsisdnWise");
+exports.getWatchTime = async (req, res) => {
+	console.log("=> getWatchTime");
 
 	let finalResult = [];
 	try {
@@ -200,7 +200,7 @@ exports.getDou = async (req, res) => {
 
 				let query = {};
 				console.log("### Request for msisdn: ", inputData[i], i);
-				let records = await msisdnStreamRepo.dou(inputData[i], startDate, endDate);
+				let records = await msisdnStreamRepo.getBitRates(inputData[i], startDate, endDate);
 				console.log('### records: ', records);
 				if(records.length > 0){
 					for (let record of records) {
@@ -244,20 +244,13 @@ exports.getDou = async (req, res) => {
 			if (err) {
 				console.log("###  File not deleted[randomReport]");
 			}
-			console.log("###  File deleted [randomReport]");
+
+			res.send({status: 200, message: "Operation is done"});
 		});
 
 	}catch (e) {
 		console.log("### error - ", e);
-
 	}
-
-
-	let result = await msisdnStreamRepo.dou( query );
-	if (result)
-		res.send({status: 200, result: result});
-	else
-		res.send({status: 404, message: 'Data not found'});
 }
 
 readFileSync = async (jsonPath) => {
