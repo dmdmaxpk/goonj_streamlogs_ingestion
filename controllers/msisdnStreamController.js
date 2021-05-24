@@ -162,7 +162,6 @@ const loggerMsisdnWiseReportWriter = createCsvWriter({
 	]
 });
 
-
 function getCurrentDate(){
 	var dateObj = new Date();
 	var month = dateObj.getMonth() + 1; //months from 1-12
@@ -171,7 +170,6 @@ function getCurrentDate(){
 	let newdate = day + "-" + month + "-" + year;
 	return newdate;
 }
-
 
 var transporter = nodemailer.createTransport({
 	host: "mail.dmdmax.com.pk",

@@ -1,5 +1,7 @@
 const env = process.env.NODE_ENV || 'development';
 
+// mongoConnectionUrl: 'mongodb://10.0.1.70:27017/streamlogs',
+
 let config = {
     development: {
         port: '3000',

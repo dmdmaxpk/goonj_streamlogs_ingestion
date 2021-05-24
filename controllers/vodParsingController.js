@@ -99,3 +99,94 @@ exports.get = async (req, res) => {
 
 	res.send(result);
 }
+
+
+// Get recommended videos by file name
+exports.getRecommended = async (req, res) => {
+	let query = req.query;
+
+	let recommended = [], userWatchRelatedVideos = undefined;
+	let result = await VodLog.findOne({file_name: query.file_name} );
+	if (result){
+		if (result.vod_details){
+
+			if (result.vod_details.category){
+				let queryParams = {};
+				let category = result.vod_details.category;
+
+				queryParams.category = category;
+				if(category === 'featured' || category === 'viral' || category === 'corona'){
+					//queryParams.category = category;
+				}
+				else if (category === 'comedy' || category === 'news' || category === 'sports' || category === 'education' || category === 'premium' || category === 'entertainment'){
+					queryParams.source = result.vod_details.source;
+				}
+				else if (category === 'programs' || category === 'food'){
+					queryParams.source = result.vod_details.source;
+					queryParams.program = result.vod_details.program;
+					queryParams.anchor = result.vod_details.anchor;
+				}
+				else if (category === 'drama'){
+					queryParams.source = result.vod_details.source;
+					queryParams.program = result.vod_details.program;
+				}
+
+				userWatchRelatedVideos = await VodLog.aggregate([
+					{
+						$match: { queryParams }
+					},
+					{
+						$project: {
+							file_name: "$file_name",
+							platform: "$platform",
+							view_counts: "$view_counts",
+							view_date: "$view_date",
+							vod_details: "$vod_details",
+						}
+					},
+					{ $sort: { view_counts:-1 }},
+					{ $limit: 10 }
+				]);
+
+			}
+
+			// Add in queue user related content
+			if (userWatchRelatedVideos) recommended.push(userWatchRelatedVideos);
+		}
+	}
+
+	let ids = getIds(userWatchRelatedVideos);
+
+	let endDate = new Date();
+	let startDate = endDate.setDate(endDate.getDate() - 10);
+	let otherRecommendedVideos = await VodLog.aggregate([
+		{
+			$match: {
+				_id: {$nin: ids},
+				$and: [{view_date: {$gte: new Date(startDate)}}, {view_date: {$lte: new Date(endDate)}}]
+			}
+		},
+		{
+			$project: {
+				file_name: "$file_name",
+				platform: "$platform",
+				view_counts: "$view_counts",
+				view_date: "$view_date",
+				vod_details: "$vod_details",
+			}
+		},
+		{ $sort: { view_counts:-1 }}
+	]);
+
+	// Add other most popular content
+	if (otherRecommendedVideos) recommended.push(otherRecommendedVideos);
+
+	res.send({code: 1, recommended: recommended, message: 'Recommended videos'});
+}
+
+
+function getIds(records){
+	let ids = [];
+	if (records) for (const record of records) ids.push(record._id);
+	return ids;
+}
