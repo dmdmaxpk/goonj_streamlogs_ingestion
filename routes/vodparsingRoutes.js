@@ -7,6 +7,9 @@ router.route('/')
     .get(vodParsingController.get)
     .post(vodParsingController.post);   // POST not consumed by any Svc (shifted to stream stats svc)
 
+router.route('/get-videos')
+    .get(vodParsingController.filterVideos)
+
 router.route('/recommended')
     .get(vodParsingController.getRecommended)
 

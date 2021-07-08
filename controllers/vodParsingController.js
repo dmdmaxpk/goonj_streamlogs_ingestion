@@ -13,6 +13,7 @@ setInterval(() => { 	// Rate limiting of API calls
 	if (parsedQueue.length !== 0) {
 		console.log('Queue items left: ', parsedQueue.length);
 		let vod_parsed_log = parsedQueue.shift();
+		console.log('vod_parsed_log: ', vod_parsed_log);
 
 		// Getting video details by file_name
 		axios.get(`http://10.3.7.101/video?file_name=${vod_parsed_log.file_name}.m4v`)
@@ -28,7 +29,8 @@ setInterval(() => { 	// Rate limiting of API calls
 			// Extracting the required fields from video document
 			let { _id, title, program, source, duration, category, sub_category, anchor, guests, topics, publish_dtm } =  resp.data[0];
 
-			vod_details = { _id, title, program, source, duration, category, sub_category, anchor, guests, topics, publish_dtm };
+			let vod_details = { _id, title, program, source, duration, category, sub_category, anchor, guests, topics, publish_dtm };
+			console.log('vod_details: ', vod_details);
 
 			// Preparing Complete docs with required fields
 			let conditions = { 
@@ -47,11 +49,13 @@ setInterval(() => { 	// Rate limiting of API calls
 					"chunks.480": vod_parsed_log.chunks[480],
 					"chunks.720": vod_parsed_log.chunks[720],
 					"chunks.total": vod_parsed_log.chunks.total,
-					"view_counts":vod_parsed_log.view_counts
+					"view_counts":vod_parsed_log.view_counts,
 				},
+				"msisdn":vod_parsed_log.msisdn,
 				vod_details
 			};
 
+			console.log('update: ', update)
 			// Setting Query Options
 			let options = { 
 				new: true, 
@@ -91,13 +95,33 @@ exports.get = async (req, res) => {
 	if (platform) query.platform = platform;
 	if (startDate) query.view_date = { $gte: startDate };
 	if (endDate) query.view_date.$lte = endDate;
-	
-	console.log(query);
 
-	let result = await VodLog.find(
-		query
-	);
+	console.log('query: ', query);
+	let result = await VodLog.find( query );
+	res.send(result);
+}
 
+// POST not consumed by any Svc (shifted to stream stats svc)
+exports.filterVideos = async (req, res) => {
+
+	const { _id, v_id, msisdn, platform, file_name, startDate, endDate } = req.query;
+	let query = {};
+	console.log(req.query);
+
+	if (_id) query._id = _id;
+	if (msisdn) query.msisdn = msisdn;
+	if (file_name) query.file_name = file_name;
+	if (platform) query.platform = platform;
+	if (startDate) query.view_date = { $gte: startDate };
+	if (endDate) query.view_date.$lte = endDate;
+
+	if (v_id) query= {"vod_details._id": v_id};
+
+	// query.msisdn = {"$exists" : true, "$ne" : ""};
+	console.log('query: ', query);
+
+	let result = await VodLog.find( query );
+	// console.log('result: ', result);
 	res.send(result);
 }
 

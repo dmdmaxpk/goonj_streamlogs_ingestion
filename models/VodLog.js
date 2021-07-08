@@ -19,6 +19,7 @@ const vodLogSchema = new Schema({
         720: { type: Number, default: 0 },
         total: { type: Number, default: 0 }
     },
+    msisdn: String,
     view_counts: Number,    // sent by parser
     view_date: Date,        // sent by parser
     vod_details: {          // These details are fetched from Video Svc and then saved here
