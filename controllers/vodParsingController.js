@@ -104,7 +104,7 @@ exports.get = async (req, res) => {
 // POST not consumed by any Svc (shifted to stream stats svc)
 exports.filterVideos = async (req, res) => {
 
-	const { _id, v_id, msisdn, platform, file_name, startDate, endDate, limit } = req.query;
+	const { _id, v_id, msisdn, platform, file_name, startDate, endDate, limit, dataRequestType } = req.query;
 	let query = {};
 	console.log(req.query);
 
@@ -120,7 +120,12 @@ exports.filterVideos = async (req, res) => {
 	// query.msisdn = {"$exists" : true, "$ne" : ""};
 	console.log('query: ', query);
 
-	let result = await VodLog.find( query ).sort({insert_time: -1}).limit(Number(limit) || 30);
+	let result;
+	if (dataRequestType === 'perDay')
+		result = await VodLog.find( query ).sort({insert_time: -1});
+	else
+		result = await VodLog.find( query ).sort({insert_time: -1}).limit(Number(limit) || 30);
+
 	// console.log('result: ', result);
 	res.send(result);
 }
