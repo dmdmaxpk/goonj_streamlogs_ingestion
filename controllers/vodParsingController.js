@@ -103,10 +103,8 @@ exports.get = async (req, res) => {
 
 // POST not consumed by any Svc (shifted to stream stats svc)
 exports.filterVideos = async (req, res) => {
-
-	const { _id, v_id, msisdn, platform, file_name, startDate, endDate, limit, dataRequestType } = req.query;
+	const { _id, v_id, msisdn, category, source, program, platform, file_name, startDate, endDate, limit, dataRequestType } = req.query;
 	let query = {};
-	console.log(req.query);
 
 	if (_id) query._id = _id;
 	if (msisdn) query.msisdn = msisdn;
@@ -115,18 +113,35 @@ exports.filterVideos = async (req, res) => {
 	if (startDate) query.view_date = { $gte: startDate };
 	if (endDate) query.view_date.$lte = endDate;
 
-	if (v_id) query= {"vod_details._id": v_id};
+	if (v_id) query['vod_details._id'] = v_id;
+	if (category) query['vod_details.category'] = category;
+	if (source) query['vod_details.source'] = source;
+	if (program) query['vod_details.program'] = program;
 
-	// query.msisdn = {"$exists" : true, "$ne" : ""};
+	if (dataRequestType === 'collaborativeItems'){
+		if (category) query['vod_details.category'] = {$ne: category};
+		if (source) query['vod_details.source'] = {$ne: source};
+		if (program) query['vod_details.program'] = {$ne: program};
+	}
+
 	console.log('query: ', query);
 
 	let result;
-	if (dataRequestType === 'perDay')
+	if (dataRequestType === 'perDay'){
 		result = await VodLog.find( query ).sort({insert_time: -1});
-	else
+	}
+	else if(dataRequestType === 'collaborativeUsers'){
+		query['msisdn'] = {"$exists" : true, "$ne" : ''};
+		result = await VodLog.aggregate([
+			{$match: query},
+			{$group: { _id: '$msisdn'}},
+			{$limit: Number(limit) || 3}
+		]);
+	}
+	else{
 		result = await VodLog.find( query ).sort({insert_time: -1}).limit(Number(limit) || 30);
+	}
 
-	// console.log('result: ', result);
 	res.send(result);
 }
 
