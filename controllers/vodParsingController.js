@@ -139,9 +139,34 @@ exports.filterVideos = async (req, res) => {
 		]);
 	}
 	else{
-		result = await VodLog.find( query ).sort({insert_time: -1}).limit(Number(limit) || 30);
+		result = await VodLog.aggregate([
+			{$match: query},
+			{$sort: {insert_time: -1}},
+			{$group: { _id: {category: "$vod_details.category", source: "$vod_details.source", program: "$vod_details.program"},
+				vod_details: {$push: {
+					guests: "$vod_details.guests",
+					topics: "$vod_details.topics",
+					views_count: "$vod_details.views_count",
+					is_premium: "$vod_details.is_premium",
+					title: "$vod_details.title",
+					description: "$vod_details.description",
+					category: "$vod_details.category",
+					sub_category: "$vod_details.sub_category",
+					source: "$vod_details.source",
+					program: "$vod_details.program",
+					anchor: "$vod_details.anchor",
+					file_name: "$vod_details.file_name",
+					duration: "$vod_details.duration",
+					thumbnail: "$vod_details.thumbnail",
+					added_dtm: "$vod_details.added_dtm",
+					publish_dtm: "$vod_details.publish_dtm"
+				}}
+			}},
+			{$limit: Number(limit) || 30}
+		]);
+		// result = await VodLog.find( query ).sort({insert_time: -1}).limit(Number(limit) || 30);
 	}
-
+	console.log('result: ', result);
 	res.send(result);
 }
 
