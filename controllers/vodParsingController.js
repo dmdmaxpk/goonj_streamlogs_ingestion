@@ -52,6 +52,7 @@ setInterval(() => { 	// Rate limiting of API calls
 					"view_counts":vod_parsed_log.view_counts,
 				},
 				"msisdn":vod_parsed_log.msisdn,
+				"user_id":vod_parsed_log.user_id,
 				vod_details
 			};
 
