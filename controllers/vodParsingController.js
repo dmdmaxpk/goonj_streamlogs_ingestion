@@ -104,11 +104,12 @@ exports.get = async (req, res) => {
 
 // POST not consumed by any Svc (shifted to stream stats svc)
 exports.filterVideos = async (req, res) => {
-	const { _id, v_id, msisdn, category, source, program, platform, file_name, startDate, endDate, limit, dataRequestType } = req.query;
+	const { _id, v_id, msisdn, user_id, category, source, program, platform, file_name, startDate, endDate, limit, dataRequestType } = req.query;
 	let query = {};
 
 	if (_id) query._id = _id;
 	if (msisdn) query.msisdn = msisdn;
+	if (user_id) query.user_id = user_id;
 	if (file_name) query.file_name = file_name;
 	if (platform) query.platform = platform;
 	if (startDate) query.view_date = { $gte: startDate };
@@ -125,18 +126,19 @@ exports.filterVideos = async (req, res) => {
 		if (program) query['vod_details.program'] = {$ne: program};
 	}
 
-	console.log('query: ', query);
+	console.log('query: ', query)
 
 	let result;
 	if (dataRequestType === 'perDay'){
 		result = await VodLog.find( query ).sort({insert_time: -1});
 	}
 	else if(dataRequestType === 'collaborativeUsers'){
-		query['msisdn'] = {"$exists" : true, "$ne" : ''};
+		query['user_id'] = {"$exists" : true, "$ne" : ''};
 		result = await VodLog.aggregate([
 			{$match: query},
-			{$group: { _id: '$msisdn'}},
-			{$limit: Number(limit) || 3}
+			{$sort: {insert_time: -1}},
+			{$group: {_id: '$user_id'}},
+			{$limit: Number(limit) || 5}
 		]);
 	}
 	else{
@@ -145,28 +147,25 @@ exports.filterVideos = async (req, res) => {
 			{$sort: {insert_time: -1}},
 			{$group: { _id: {category: "$vod_details.category", source: "$vod_details.source", program: "$vod_details.program"},
 				vod_details: {$push: {
+					_id: "$vod_details._id",
 					guests: "$vod_details.guests",
 					topics: "$vod_details.topics",
-					views_count: "$vod_details.views_count",
-					is_premium: "$vod_details.is_premium",
+					views_count: "$view_counts",
 					title: "$vod_details.title",
-					description: "$vod_details.description",
 					category: "$vod_details.category",
-					sub_category: "$vod_details.sub_category",
 					source: "$vod_details.source",
 					program: "$vod_details.program",
 					anchor: "$vod_details.anchor",
-					file_name: "$vod_details.file_name",
+					file_name: "$file_name",
 					duration: "$vod_details.duration",
-					thumbnail: "$vod_details.thumbnail",
-					added_dtm: "$vod_details.added_dtm",
+					platform: "$platform",
 					publish_dtm: "$vod_details.publish_dtm"
 				}}
 			}},
 			{$limit: Number(limit) || 30}
 		]);
-		// result = await VodLog.find( query ).sort({insert_time: -1}).limit(Number(limit) || 30);
 	}
+
 	console.log('result: ', result);
 	res.send(result);
 }
