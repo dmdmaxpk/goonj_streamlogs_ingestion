@@ -192,6 +192,7 @@ exports.getWatchTime = async (req, res) => {
 		for(let i = 0; i < inputData.length; i++){
 
 			let singObject = { msisdn: inputData[i] };
+			singObject.watchTime = 0;
 			if(inputData[i] && inputData[i].length === 11){
 
 				console.log("### Request for msisdn: ", inputData[i], i);
@@ -199,7 +200,8 @@ exports.getWatchTime = async (req, res) => {
 				console.log('### records: ', records);
 				if(records.length > 0){
 					for (let record of records) {
-						singObject.watchTime = (record.totalBitRates * 5) + singObject.watchTime;
+						console.log('record.totalBitRates: ', record.totalBitRates);
+						singObject.watchTime = Number((Number(record.totalBitRates) * 5)) + Number(singObject.watchTime);
 					}
 				}
 				else{
