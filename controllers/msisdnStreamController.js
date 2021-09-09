@@ -157,7 +157,6 @@ const loggerMsisdnWiseReportWriter = createCsvWriter({
 	path: randomReportFilePath,
 	header: [
 		{id: 'msisdn', title: 'Msisdn'},
-		{id: 'month', title: 'Month'},
 		{id: 'watchTime', title: 'Watch Time (SEC)'}
 	]
 });
@@ -190,32 +189,30 @@ exports.getWatchTime = async (req, res) => {
 		let inputData = await readFileSync(jsonPath);
 		console.log("### Input Data Length: ", inputData.length);
 
-		let startDate = "2021-01-01T00:00:00.000Z";
-		let endDate = "2021-01-31T23:59:59.000Z";
-
 		for(let i = 0; i < inputData.length; i++){
+
+			let singObject = { msisdn: inputData[i] };
 			if(inputData[i] && inputData[i].length === 11){
 
-				let query = {};
 				console.log("### Request for msisdn: ", inputData[i], i);
-				let records = await msisdnStreamRepo.getBitRates(inputData[i], startDate, endDate);
+				let records = await msisdnStreamRepo.getBitRates(inputData[i]);
 				console.log('### records: ', records);
 				if(records.length > 0){
 					for (let record of records) {
-						let singObject = { msisdn: inputData[i] }
-						singObject.month = "0" + record._id.logMonth + "-2021";
-						singObject.watchTime = record.totalBitRates * 5;
-
-						finalResult.push(singObject);
-						console.log('### Done: ')
+						singObject.watchTime = (record.totalBitRates * 5) + singObject.watchTime;
 					}
 				}
 				else{
 					console.log("### Data not found: ");
+					singObject.watchTime = 0;
 				}
 			}else{
 				console.log("### Invalid number or number length: ");
+				singObject.watchTime = 0;
 			}
+
+			finalResult.push(singObject);
+			console.log('### Done: ')
 		}
 
 		console.log("### Finally: ", finalResult.length);

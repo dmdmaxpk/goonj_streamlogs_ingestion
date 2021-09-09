@@ -142,6 +142,7 @@ exports.filterVideos = async (req, res) => {
 		]);
 	}
 	else{
+		console.log('fffffffffff', query)
 		result = await VodLog.aggregate([
 			{$match: query},
 			{$sort: {insert_time: -1}},

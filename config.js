@@ -5,7 +5,7 @@ const env = process.env.NODE_ENV || 'development';
 let config = {
     development: {
         port: '3000',
-        mongoConnectionUrl: 'mongodb://localhost:27017/streamlogs',
+        mongoConnectionUrl: 'mongodb://10.0.1.70:27017/streamlogs',
         apiGateway: 'http://10.0.1.90',
         goonj_video_service: "http://10.3.7.101:3000"
     },

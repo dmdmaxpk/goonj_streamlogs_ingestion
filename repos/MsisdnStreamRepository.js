@@ -27,27 +27,19 @@ class MsisdnStreamRepository {
         return await msisdnStreamLogObj.save();
     }
 
-    async getBitRates (msisdn, startDate, endDate) {
-        console.log('getBitRates: ', msisdn, ' , ', startDate, ' , ', endDate);
+    async getBitRates (msisdn) {
+        console.log('getBitRates: ', msisdn);
         try {
             let result = await msisdnStreamLog.aggregate([
                 {
                     $match: {
                         msisdn: msisdn,
                         platform: {$in: ['web', 'android']},
-                        $and: [{logDate: {$gte: new Date(startDate)}}, {logDate: {$lte: new Date(endDate)}}]
                     }
                 },
-                {
-                    $project: {
-                        bitrate: "$bitrateCount",
-                        logMonth: {$month: "$logDate"},
-                    }
-                },
-                {
-                    $group: {
-                        _id: {logMonth: "$logMonth"},
-                        totalBitRates: {$sum: "$bitrate"}
+                { $group: {
+                        _id: "bitrates",
+                        totalBitRates: { $sum: "$bitrate" }
                     }
                 }
             ]);
