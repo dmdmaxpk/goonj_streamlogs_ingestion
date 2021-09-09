@@ -33,13 +33,12 @@ class MsisdnStreamRepository {
             let result = await msisdnStreamLog.aggregate([
                 {
                     $match: {
-                        msisdn: msisdn,
-                        platform: {$in: ['web', 'android']},
+                        msisdn: msisdn
                     }
                 },
                 { $group: {
                         _id: "bitrates",
-                        totalBitRates: { $sum: "$bitrate" }
+                        totalBitRates: { $sum: "$totalBitRates" }
                     }
                 }
             ]);
