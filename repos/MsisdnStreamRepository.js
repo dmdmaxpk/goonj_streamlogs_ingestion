@@ -38,7 +38,7 @@ class MsisdnStreamRepository {
                 },
                 { $group: {
                         _id: "bitrates",
-                        totalBitRates: { $sum: "$totalBitRates" }
+                        totalBitRates: { $sum: "$bitrateCount" }
                     }
                 }
             ]);
