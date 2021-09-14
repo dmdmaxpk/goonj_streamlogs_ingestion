@@ -7,6 +7,9 @@ const MsisdnStreamSchema = new Schema({
     platform: String, // Web OR Android
     source: String,   // live channel OR Vod
     msisdn: String, // user msisdn
+    user_id: String, // user user id
+    category: String, // video category
+    video_id: String, // video id
     computeSource: String, // channelName or fileName
     logDate: { type: Date, default: Date.now }, // Date from log file
     logHour: String, // Hour from log file

@@ -63,11 +63,11 @@ exports.post = async (req, res) => {
 		let records, objKey, channels, channel, counter = 0 ;
 		for (records of body.data) {
 			for (objKey in records) {
-				if (records.hasOwnProperty(objKey) && objKey !== 'msisdn') {
+				if (records.hasOwnProperty(objKey) && (objKey !== 'msisdn' && objKey !== 'uid' && objKey !== 'category' && objKey !== 'video_id')) {
 					channels = records[objKey];
 					if (channels.length > 0){
 						for (channel of channels){
-							await this.insertOrUpdateRecord(req, objKey, records['msisdn'], channel);
+							await this.insertOrUpdateRecord(req, objKey, records['msisdn'], records['uid'], records['category'], records['video_id'], channel);
 							counter = counter + 1;
 						}
 					}
@@ -87,7 +87,7 @@ exports.post = async (req, res) => {
 	}
 }
 
-exports.insertOrUpdateRecord = async (req, objKey, msisdn, record) =>{
+exports.insertOrUpdateRecord = async (req, objKey, msisdn, uid, category, video_id, record) =>{
 
 	let body = req.body;
 	let platform = body.platform;
@@ -101,6 +101,9 @@ exports.insertOrUpdateRecord = async (req, objKey, msisdn, record) =>{
 		platform: platform, // Web OR Android
 		source: source,   // live channel OR Vod
 		msisdn: msisdn, // user msisdn
+		user_id: uid, // user msisdn
+		category: category, // user msisdn
+		video_id: video_id, // user msisdn
 		computeSource: objKey, // channelName or fileName
 		logDate: record.date, // Date from log file
 		logHour: record.hour, // Hour from log file
