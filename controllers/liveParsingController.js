@@ -51,9 +51,7 @@ exports.post = async (req, res) => {
 	console.log("conditions",conditions)
 	axios.get(`${config.goonj_video_service}/channel/getchannelcats`).then(async (data) => {
 		catsOfChannels = data.data;
-		console.log('data',data)
-		console.log('catsOfData',catsOfChannels);
-		console.log('catsOfData',catsOfChannels[postBody.channel]);
+
 		// Setting update values
 		let update = { $inc: { 
 			"chunks.144": postBody.chunks[144],
@@ -62,9 +60,16 @@ exports.post = async (req, res) => {
 			"chunks.480": postBody.chunks[480],
 			"chunks.720": postBody.chunks[720],
 			"chunks.total": postBody.chunks.total,
-			"view_counts": postBody.view_counts},
-			"category": catsOfChannels[postBody.channel]
+			"view_counts": postBody.view_counts
+			},
+			"category": catsOfChannels[postBody.channel],
+			"video_category": postBody.category,
+			"msisdn": postBody.msisdn,
+			"user_id": postBody.user_id,
+			"video_id": postBody.video_id
 		};
+
+		console.log('update: ', update);
 
 		// Setting Query Options
 		let options = { new: true, upsert: true, setDefaultsOnInsert: true }

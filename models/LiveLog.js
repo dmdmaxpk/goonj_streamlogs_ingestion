@@ -11,6 +11,10 @@ const liveLogSchema = new Schema({
     channel: String,
     platform: String,   // Web OR Android
     category: String,   // Category of channel
+    video_category: String,
+    user_id: String,
+    msisdn: String,
+    video_id: String,
     chunks: {
         144: { type: Number, default: 0 },
         240: { type: Number, default: 0 },
