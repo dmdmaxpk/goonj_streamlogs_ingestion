@@ -228,7 +228,7 @@ exports.getWatchTime = async (req, res) => {
 			await loggerMsisdnWiseReportWriter.writeRecords(finalResult);
 			let info = await transporter.sendMail({
 				from: 'paywall@dmdmax.com.pk',
-				to:  ["muhammad.azam@dmdmax.com"],
+				to:  ["taha@dmdmax.com"],
 				subject: `Complaint Data`, // Subject line
 				text: `This report contains the details of msisdns being sent us over email from Zara`,
 				attachments:[
