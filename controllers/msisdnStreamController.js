@@ -188,7 +188,7 @@ exports.getWatchTime = async (req, res) => {
 
 	let finalResult = [];
 	try {
-		var jsonPath = path.join(__dirname, '..', 'msisdns.txt');
+		var jsonPath = path.join(__dirname, '..', 'msisdn.txt');
 		let inputData = await readFileSync(jsonPath);
 		console.log("### Input Data Length: ", inputData.length);
 
